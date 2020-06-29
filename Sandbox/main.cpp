@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <cstdlib>
 #include <vector>
+#include <optional>
 
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
 									  const VkDebugUtilsMessengerCreateInfoEXT * pCreateInfo,
@@ -35,6 +36,16 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance,
 	}
 }
 
+struct QueueFamilyIndices
+{
+	std::optional<uint32_t> graphicsFamily;
+
+	bool IsComplete()
+	{
+		return graphicsFamily.has_value();
+	}
+};
+
 class HelloTriangleApplication
 {
 public:
@@ -64,6 +75,7 @@ private:
 	GLFWwindow * m_window = nullptr;
 	VkInstance m_instance = nullptr;
 	VkDebugUtilsMessengerEXT m_debugMessenger = nullptr;
+	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 
 	static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 														VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -88,6 +100,7 @@ private:
 	{
 		CreateInstance();
 		SetupDebugMessenger();
+		PickPhysicalDevice();
 	}
 
 	void CreateInstance()
@@ -217,6 +230,72 @@ private:
 		createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
 		createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 		createInfo.pfnUserCallback = DebugCallback;
+	}
+
+	void PickPhysicalDevice()
+	{
+		uint32_t deviceCount = 0;
+		vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
+		if (deviceCount == 0)
+		{
+			throw std::runtime_error("Failed to find GPUs with Vulkan support!");
+		}
+
+		std::vector<VkPhysicalDevice> devices(deviceCount);
+		vkEnumeratePhysicalDevices(m_instance, &deviceCount, devices.data());
+		VkPhysicalDeviceProperties deviceProperties;
+		std::cout << "Available GPUs:\n";
+
+		for (const VkPhysicalDevice & device : devices)
+		{
+			vkGetPhysicalDeviceProperties(device, &deviceProperties);
+			std::cout << '\t' << deviceProperties.deviceName << '\n';
+
+			if (IsDeviceSuitable(device))
+			{
+				physicalDevice = device;
+				// break; // Picks the last GPU
+			}
+		}
+
+		if (physicalDevice == VK_NULL_HANDLE)
+		{
+			throw std::runtime_error("Failed to find a suitable GPU!");
+		}
+	}
+
+	bool IsDeviceSuitable(VkPhysicalDevice device)
+	{
+		QueueFamilyIndices indices = findQueueFamilies(device);
+
+		return indices.IsComplete();
+	}
+
+	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device)
+	{
+		QueueFamilyIndices indices;
+
+		uint32_t queueFamilyCount = 0;
+		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+		int i = 0;
+		for (const VkQueueFamilyProperties & queueFamily : queueFamilies)
+		{
+			if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+			{
+				indices.graphicsFamily = i;
+			}
+			if (indices.IsComplete())
+			{
+				break;
+			}
+			i++;
+		}
+
+		return indices;
 	}
 
 	void MainLoop()
