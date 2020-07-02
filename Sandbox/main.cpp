@@ -139,9 +139,14 @@ private:
 	};
 
 	const std::vector<Vertex> vertices = {
-		{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-		{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-		{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+		{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+		{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+		{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+		{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+	};
+
+	const std::vector<uint16_t> indices = {
+		0, 1, 2, 2, 3, 0
 	};
 
 #ifdef NDEBUG
@@ -172,6 +177,8 @@ private:
 	VkCommandPool m_commandPool = nullptr;
 	VkBuffer m_vertexBuffer = nullptr;
 	VkDeviceMemory m_vertexBufferMemory = nullptr;
+	VkBuffer m_indexBuffer;
+	VkDeviceMemory m_indexBufferMemory;
 	std::vector<VkCommandBuffer> m_commandBuffers;
 	std::vector<VkSemaphore> m_imageAvailableSemaphores;
 	std::vector<VkSemaphore> m_renderFinishedSemaphores;
@@ -220,6 +227,7 @@ private:
 		CreateFramebuffers();
 		CreateCommandPool();
 		CreateVertexBuffer();
+		CreateIndexBuffer();
 		CreateCommandBuffers();
 		CreateSyncObjects();
 	}
@@ -943,7 +951,7 @@ private:
 
 	void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer & buffer, VkDeviceMemory & bufferMemory)
 	{
-		VkBufferCreateInfo bufferInfo {};
+		VkBufferCreateInfo bufferInfo { };
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		bufferInfo.size = size;
 		bufferInfo.usage = usage;
@@ -957,7 +965,7 @@ private:
 		VkMemoryRequirements memRequirements;
 		vkGetBufferMemoryRequirements(m_device, buffer, &memRequirements);
 
-		VkMemoryAllocateInfo allocInfo {};
+		VkMemoryAllocateInfo allocInfo { };
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = memRequirements.size;
 		allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, properties);
@@ -1022,6 +1030,35 @@ private:
 		throw std::runtime_error("Failed to find suitable memory type!");
 	}
 
+	void CreateIndexBuffer()
+	{
+		VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+
+		VkBuffer stagingBuffer;
+		VkDeviceMemory stagingBufferMemory;
+		CreateBuffer(bufferSize,
+					 VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+					 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+					 stagingBuffer,
+					 stagingBufferMemory);
+
+		void * data;
+		vkMapMemory(m_device, stagingBufferMemory, 0, bufferSize, 0, &data);
+		memcpy(data, indices.data(), (size_t) bufferSize);
+		vkUnmapMemory(m_device, stagingBufferMemory);
+
+		CreateBuffer(bufferSize,
+					 VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+					 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+					 m_indexBuffer,
+					 m_indexBufferMemory);
+
+		CopyBuffer(stagingBuffer, m_indexBuffer, bufferSize);
+
+		vkDestroyBuffer(m_device, stagingBuffer, nullptr);
+		vkFreeMemory(m_device, stagingBufferMemory, nullptr);
+	}
+
 	void CreateCommandBuffers()
 	{
 		m_commandBuffers.resize(m_swapChainFramebuffers.size());
@@ -1065,8 +1102,10 @@ private:
 			VkBuffer vertexBuffers[] = {m_vertexBuffer};
 			VkDeviceSize offsets[] = {0};
 			vkCmdBindVertexBuffers(m_commandBuffers[i], 0, 1, vertexBuffers, offsets);
+			vkCmdBindIndexBuffer(m_commandBuffers[i], m_indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
-			vkCmdDraw(m_commandBuffers[i], static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+			// vkCmdDraw(m_commandBuffers[i], static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+			vkCmdDrawIndexed(m_commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 			vkCmdEndRenderPass(m_commandBuffers[i]);
 			
 			if (vkEndCommandBuffer(m_commandBuffers[i]) != VK_SUCCESS)
@@ -1232,6 +1271,8 @@ private:
 	{
 		CleanupSwapChain();
 
+		vkDestroyBuffer(m_device, m_indexBuffer, nullptr);
+		vkFreeMemory(m_device, m_indexBufferMemory, nullptr);
 		vkDestroyBuffer(m_device, m_vertexBuffer, nullptr);
 		vkFreeMemory(m_device, m_vertexBufferMemory, nullptr);
 
@@ -1261,6 +1302,7 @@ private:
 int main()
 {
 	std::cout << "GO OVER THE TUTORIAL ONE MORE TIME AND WRITE ALL POSSIBLE OPTIMIZATIONS" << std::endl;
+	std::cout << "https://developer.nvidia.com/vulkan-memory-management" << std::endl;
 	HelloTriangleApplication app;
 	try
 	{
