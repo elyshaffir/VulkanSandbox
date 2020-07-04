@@ -188,8 +188,10 @@ private:
 	VkPipeline m_graphicsPipeline = nullptr;
 	std::vector<VkFramebuffer> m_swapChainFramebuffers;
 	VkCommandPool m_commandPool = nullptr;
-	VkImage textureImage = nullptr;
+	VkImage m_textureImage = nullptr;
 	VkDeviceMemory textureImageMemory = nullptr;
+	VkImageView m_textureImageView = nullptr;
+	VkSampler m_textureSampler;
 	VkBuffer m_vertexBuffer = nullptr;
 	VkDeviceMemory m_vertexBufferMemory = nullptr;
 	VkBuffer m_indexBuffer = nullptr;
@@ -247,6 +249,8 @@ private:
 		CreateFramebuffers();
 		CreateCommandPool();
 		CreateTextureImage();
+		CreateTextureImageView();
+		CreateTextureSampler();
 		CreateVertexBuffer();
 		CreateIndexBuffer();
 		CreateUniformBuffers();
@@ -437,7 +441,10 @@ private:
 			swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
 		}
 
-		return indices.IsComplete() && extensionsSupported && swapChainAdequate;
+		VkPhysicalDeviceFeatures supportedFeatures { };
+		vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
+
+		return indices.IsComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
 	}
 
 	bool CheckDeviceExtensionSupport(VkPhysicalDevice device)
@@ -512,6 +519,7 @@ private:
 		}
 
 		VkPhysicalDeviceFeatures deviceFeatures { };
+		deviceFeatures.samplerAnisotropy = VK_TRUE;
 
 		VkDeviceCreateInfo createInfo { };
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -676,27 +684,33 @@ private:
 	void CreateImageViews()
 	{
 		m_swapChainImageViews.resize(m_swapChainImages.size());
-		for (size_t i = 0; i < m_swapChainImages.size(); i++)
+
+		for (uint32_t i = 0; i < m_swapChainImages.size(); i++)
 		{
-			VkImageViewCreateInfo createInfo { };
-			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			createInfo.image = m_swapChainImages[i];
-			createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-			createInfo.format = m_swapChainImageFormat;
-			createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			createInfo.subresourceRange.baseMipLevel = 0;
-			createInfo.subresourceRange.levelCount = 1;
-			createInfo.subresourceRange.baseArrayLayer = 0;
-			createInfo.subresourceRange.layerCount = 1;
-			if (vkCreateImageView(m_device, &createInfo, nullptr, &m_swapChainImageViews[i]) != VK_SUCCESS)
-			{
-				throw std::runtime_error("Failed to create image views!");
-			}
+			m_swapChainImageViews[i] = CreateImageView(m_swapChainImages[i], m_swapChainImageFormat);
 		}
+	}
+
+	VkImageView CreateImageView(VkImage image, VkFormat format)
+	{
+		VkImageViewCreateInfo viewInfo {};
+		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		viewInfo.image = image;
+		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		viewInfo.format = format;
+		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		viewInfo.subresourceRange.baseMipLevel = 0;
+		viewInfo.subresourceRange.levelCount = 1;
+		viewInfo.subresourceRange.baseArrayLayer = 0;
+		viewInfo.subresourceRange.layerCount = 1;
+
+		VkImageView imageView;
+		if (vkCreateImageView(m_device, &viewInfo, nullptr, &imageView) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create texture image view!");
+		}
+
+		return imageView;
 	}
 
 	void CreateDescriptorSetLayout()
@@ -997,17 +1011,17 @@ private:
 					VK_IMAGE_TILING_OPTIMAL,
 					VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
 					VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-					textureImage,
+					m_textureImage,
 					textureImageMemory);
-		TransitionImageLayout(textureImage,
+		TransitionImageLayout(m_textureImage,
 							  VK_FORMAT_R8G8B8A8_SRGB,
 							  VK_IMAGE_LAYOUT_UNDEFINED,
 							  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 		CopyBufferToImage(stagingBuffer,
-						  textureImage,
+						  m_textureImage,
 						  static_cast<uint32_t>(texWidth),
 						  static_cast<uint32_t>(texHeight));
-		TransitionImageLayout(textureImage,
+		TransitionImageLayout(m_textureImage,
 							  VK_FORMAT_R8G8B8A8_SRGB,
 							  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 							  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
@@ -1184,6 +1198,37 @@ private:
 		EndSingleTimeCommands(commandBuffer);
 	}
 
+	void CreateTextureImageView()
+	{
+		m_textureImageView = CreateImageView(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB);
+	}
+
+	void CreateTextureSampler()
+	{
+		VkSamplerCreateInfo samplerInfo {};
+		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+		samplerInfo.magFilter = VK_FILTER_LINEAR;
+		samplerInfo.minFilter = VK_FILTER_LINEAR;
+		samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		samplerInfo.anisotropyEnable = VK_TRUE;
+		samplerInfo.maxAnisotropy = 16.0f;
+		samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+		samplerInfo.unnormalizedCoordinates = VK_FALSE;
+		samplerInfo.compareEnable = VK_FALSE;
+		samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+		samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+		samplerInfo.mipLodBias = 0.0f;
+		samplerInfo.minLod = 0.0f;
+		samplerInfo.maxLod = 0.0f;
+
+		if (vkCreateSampler(m_device, &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create texture sampler!");
+		}
+	}
+
 	void CreateVertexBuffer()
 	{
 		VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
@@ -1217,7 +1262,7 @@ private:
 
 	void CreateBuffer(VkDeviceSize size,
 					  VkBufferUsageFlags usage,
-					 VkMemoryPropertyFlags properties,
+					  VkMemoryPropertyFlags properties,
 					  VkBuffer & buffer,
 					  VkDeviceMemory & bufferMemory)
 	{
@@ -1619,8 +1664,10 @@ private:
 	void CleanUp()
 	{
 		CleanupSwapChain();
-		
-		vkDestroyImage(m_device, textureImage, nullptr);
+
+		vkDestroySampler(m_device, m_textureSampler, nullptr);
+		vkDestroyImageView(m_device, m_textureImageView, nullptr);
+		vkDestroyImage(m_device, m_textureImage, nullptr);
 		vkFreeMemory(m_device, textureImageMemory, nullptr);
 
 		vkDestroyDescriptorSetLayout(m_device, m_descriptorSetLayout, nullptr);
