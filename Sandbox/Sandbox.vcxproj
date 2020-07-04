@@ -125,7 +125,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>D:\DATA\Documents\Vulkan\1.2.141.2\Include;D:\DATA\Documents\Visual Studio 2019\Libraries\glm;D:\DATA\Documents\Visual Studio 2019\Libraries\glfw-3.3.2.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\DATA\Documents\Visual Studio 2019\Libraries\stb;D:\DATA\Documents\Vulkan\1.2.141.2\Include;D:\DATA\Documents\Visual Studio 2019\Libraries\glm;D:\DATA\Documents\Visual Studio 2019\Libraries\glfw-3.3.2.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
@@ -144,7 +144,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>D:\DATA\Documents\Vulkan\1.2.141.2\Include;D:\DATA\Documents\Visual Studio 2019\Libraries\glm;D:\DATA\Documents\Visual Studio 2019\Libraries\glfw-3.3.2.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\DATA\Documents\Visual Studio 2019\Libraries\stb;D:\DATA\Documents\Vulkan\1.2.141.2\Include;D:\DATA\Documents\Visual Studio 2019\Libraries\glm;D:\DATA\Documents\Visual Studio 2019\Libraries\glfw-3.3.2.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
