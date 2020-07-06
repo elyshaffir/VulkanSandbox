@@ -2,11 +2,15 @@
 #define GLM_FORCE_RADIANS
 #define STB_IMAGE_IMPLEMENTATION
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#define TINYOBJLOADER_IMPLEMENTATION
+#define GLM_ENABLE_EXPERIMENTAL
 
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <stb_image.h>
+#include <tiny_obj_loader.h>
+#include <glm/gtx/hash.hpp>
 
 #include <iostream>
 #include <stdexcept>
@@ -19,6 +23,7 @@
 #include <fstream>
 #include <array>
 #include <chrono>
+#include <unordered_map>
 
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
 									  const VkDebugUtilsMessengerCreateInfoEXT * pCreateInfo,
@@ -122,7 +127,23 @@ struct Vertex
 
 		return attributeDescriptions;
 	}
+
+	bool operator==(const Vertex & other) const
+	{
+		return pos == other.pos && color == other.color && texCoord == other.texCoord;
+	}
 };
+
+namespace std
+{
+	template<> struct hash<Vertex>
+	{
+		size_t operator()(Vertex const & vertex) const
+		{
+			return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^ (hash<glm::vec2>()(vertex.texCoord) << 1);
+		}
+	};
+}
 
 struct UniformBufferObject
 {
@@ -148,6 +169,9 @@ private:
 	static constexpr uint32_t WIDTH = 800;
 	static constexpr uint32_t HEIGHT = 600;
 
+	const std::string MODEL_PATH = "viking_room.obj";
+	const std::string TEXTURE_PATH = "viking_room.png";
+
 	const std::vector<const char *> validationLayers =
 	{
 		"VK_LAYER_KHRONOS_validation"
@@ -156,25 +180,6 @@ private:
 	const std::vector<const char *> deviceExtensions =
 	{
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME
-	};
-
-	const std::vector<Vertex> vertices =
-	{
-		{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-		{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-		{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-		{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-
-		{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-		{{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-		{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-		{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
-	};
-
-	const std::vector<uint16_t> indices =
-	{
-		0, 1, 2, 2, 3, 0,
-		4, 5, 6, 6, 7, 4
 	};
 
 #ifdef NDEBUG
@@ -210,7 +215,9 @@ private:
 	VkImage m_textureImage = nullptr;
 	VkDeviceMemory textureImageMemory = nullptr;
 	VkImageView m_textureImageView = nullptr;
-	VkSampler m_textureSampler;
+	VkSampler m_textureSampler = nullptr;
+	std::vector<Vertex> m_vertices;
+	std::vector<uint32_t> m_indices;
 	VkBuffer m_vertexBuffer = nullptr;
 	VkDeviceMemory m_vertexBufferMemory = nullptr;
 	VkBuffer m_indexBuffer = nullptr;
@@ -271,6 +278,7 @@ private:
 		CreateTextureImage();
 		CreateTextureImageView();
 		CreateTextureSampler();
+		LoadModel();
 		CreateVertexBuffer();
 		CreateIndexBuffer();
 		CreateUniformBuffers();
@@ -882,8 +890,8 @@ private:
 		depthStencil.minDepthBounds = 0.0f; // Optional
 		depthStencil.maxDepthBounds = 1.0f; // Optional
 		depthStencil.stencilTestEnable = VK_FALSE;
-		//depthStencil.front {}; // Optional // Gives error
-		//depthStencil.back {}; // Optional
+		//depthStencil.front { }; // Optional // Gives error
+		//depthStencil.back { }; // Optional
 
 		VkGraphicsPipelineCreateInfo pipelineInfo { };
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -1005,7 +1013,7 @@ private:
 				m_depthImageView
 			};
 
-			VkFramebufferCreateInfo framebufferInfo {};
+			VkFramebufferCreateInfo framebufferInfo { };
 			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 			framebufferInfo.renderPass = m_renderPass;
 			framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
@@ -1086,7 +1094,7 @@ private:
 	void CreateTextureImage()
 	{
 		int texWidth, texHeight, texChannels;
-		stbi_uc * pixels = stbi_load("bibi.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+		stbi_uc * pixels = stbi_load(TEXTURE_PATH.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 		VkDeviceSize imageSize = texWidth * texHeight * 4;
 
 		if (!pixels)
@@ -1356,9 +1364,55 @@ private:
 		}
 	}
 
+	void LoadModel()
+	{
+		tinyobj::attrib_t attrib;
+		std::vector<tinyobj::shape_t> shapes;
+		std::vector<tinyobj::material_t> materials;
+		std::string warn, err;
+
+		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, MODEL_PATH.c_str()))
+		{
+			throw std::runtime_error(warn + err);
+		}
+
+		std::unordered_map<Vertex, uint32_t> uniqueVertices { };
+
+		for (const auto & shape : shapes)
+		{
+			for (const auto & index : shape.mesh.indices)
+			{
+				Vertex vertex { };
+
+				vertex.pos =
+				{
+					attrib.vertices[3 * index.vertex_index + 0],
+					attrib.vertices[3 * index.vertex_index + 1],
+					attrib.vertices[3 * index.vertex_index + 2]
+				};
+
+				vertex.texCoord =
+				{
+					attrib.texcoords[2 * index.texcoord_index + 0],
+					1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+				};
+
+				vertex.color = {1.0f, 1.0f, 1.0f};
+
+				if (uniqueVertices.count(vertex) == 0)
+				{
+					uniqueVertices[vertex] = static_cast<uint32_t>(m_vertices.size());
+					m_vertices.push_back(vertex);
+				}
+
+				m_indices.push_back(uniqueVertices[vertex]);
+			}
+		}
+	}
+
 	void CreateVertexBuffer()
 	{
-		VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+		VkDeviceSize bufferSize = sizeof(m_vertices[0]) * m_vertices.size();
 
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
@@ -1370,7 +1424,7 @@ private:
 
 		void * data;
 		vkMapMemory(m_device, stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, vertices.data(), (size_t) bufferSize);
+		memcpy(data, m_vertices.data(), (size_t) bufferSize);
 		vkUnmapMemory(m_device, stagingBufferMemory);
 		/// <summary>
 		/// https://vulkan-tutorial.com/Vertex_buffers/Staging_buffer Do the challange when finalizing the engine prototype
@@ -1449,7 +1503,7 @@ private:
 
 	void CreateIndexBuffer()
 	{
-		VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+		VkDeviceSize bufferSize = sizeof(m_indices[0]) * m_indices.size();
 
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
@@ -1461,7 +1515,7 @@ private:
 
 		void * data;
 		vkMapMemory(m_device, stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, indices.data(), (size_t) bufferSize);
+		memcpy(data, m_indices.data(), (size_t) bufferSize);
 		vkUnmapMemory(m_device, stagingBufferMemory);
 
 		CreateBuffer(bufferSize,
@@ -1609,10 +1663,10 @@ private:
 			VkBuffer vertexBuffers[] = {m_vertexBuffer};
 			VkDeviceSize offsets[] = {0};
 			vkCmdBindVertexBuffers(m_commandBuffers[i], 0, 1, vertexBuffers, offsets);
-			vkCmdBindIndexBuffer(m_commandBuffers[i], m_indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+			vkCmdBindIndexBuffer(m_commandBuffers[i], m_indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
 			vkCmdBindDescriptorSets(m_commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1, &m_descriptorSets[i], 0, nullptr);
-			vkCmdDrawIndexed(m_commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+			vkCmdDrawIndexed(m_commandBuffers[i], static_cast<uint32_t>(m_indices.size()), 1, 0, 0, 0);
 			vkCmdEndRenderPass(m_commandBuffers[i]);
 			
 			if (vkEndCommandBuffer(m_commandBuffers[i]) != VK_SUCCESS)

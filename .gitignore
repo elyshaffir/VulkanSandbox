@@ -361,4 +361,5 @@ FodyWeavers.xsd
 
 # Custom
 *.jpg
+*.png
 *.spv
