@@ -1,3 +1,7 @@
+# This CMakeLists.txt file is not optimized and is probably full of bad practices.
+# But it works.
+# - Need to make sure no unnecessary binaries are linked
+# - Need to make sure local variables like ${PROJECT_NAME} are used wherever they can
 cmake_minimum_required(VERSION 3.17)
 project(Sandbox)
 add_executable(Sandbox main.cpp)
@@ -5,16 +9,19 @@ add_executable(Sandbox main.cpp)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
 
-set(glm_DIR ${CMAKE_MODULE_PATH} "D:/DATA/Documents/Visual Studio 2019/Libraries/glm/cmake/glm")
+set(glm_DIR "D:/DATA/Documents/Visual Studio 2019/Libraries/glm/cmake/glm")
 find_package(glm REQUIRED)
-target_link_libraries(${PROJECT_NAME} glm)
-include_directories("D:/DATA/Documents/Visual Studio 2019/Libraries/glm")
+target_link_libraries(Sandbox glm::glm)
 
-include_directories(${Vulkan_INCLUDE_DIR})
-target_link_libraries(Sandbox "D:/DATA/Documents/Vulkan/1.2.141.2/Lib/*.dll")
+find_package(Vulkan)  # Probably confirmed to be elegant
+target_link_libraries(Sandbox Vulkan::Vulkan)
 
 include_directories("D:/DATA/Documents/Visual Studio 2019/Libraries/stb")
 include_directories("D:/DATA/Documents/Visual Studio 2019/Libraries/tinyobjloader")
 
-include_directories("D:/DATA/Documents/Visual Studio 2019/Libraries/glfw-3.3.2.bin.WIN64/include")
-target_link_libraries(Sandbox "D:/DATA/Documents/Visual Studio 2019/Libraries/glfw-3.3.2.bin.WIN64/lib-vc2019/glfw3.dll")
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+add_subdirectory("D:/DATA/Documents/Visual Studio 2019/Libraries/glfw-3.3.2" build)
+#add_subdirectory("D:/DATA/Documents/Visual Studio 2019/Libraries/glfw-3.3.2")
+target_link_libraries(Sandbox glfw)
