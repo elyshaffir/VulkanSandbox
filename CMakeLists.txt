@@ -3,6 +3,7 @@ project(Sandbox)
 add_executable(Sandbox main.cpp)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
 
 set(glm_DIR ${CMAKE_MODULE_PATH} "D:/DATA/Documents/Visual Studio 2019/Libraries/glm/cmake/glm")
 find_package(glm REQUIRED)

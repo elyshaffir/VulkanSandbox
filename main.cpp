@@ -30,8 +30,8 @@ VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
 									  const VkAllocationCallbacks * pAllocator,
 									  VkDebugUtilsMessengerEXT * pDebugMessenger)
 {
-	PFN_vkCreateDebugUtilsMessengerEXT func =
-		(PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+	auto func = (PFN_vkCreateDebugUtilsMessengerEXT)
+	        vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
 	if (func != nullptr)
 	{
 		return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
@@ -46,8 +46,8 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance,
 								   VkDebugUtilsMessengerEXT debugMessenger,
 								   const VkAllocationCallbacks * pAllocator)
 {
-	PFN_vkDestroyDebugUtilsMessengerEXT func =
-		(PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+	auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)
+	        vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
 	if (func != nullptr)
 	{
 		func(instance, debugMessenger, pAllocator);
@@ -192,38 +192,38 @@ private:
 
 	GLFWwindow * m_window = nullptr;
 	VkInstance m_instance = nullptr;
-	VkDebugUtilsMessengerEXT m_debugMessenger = nullptr;
-	VkSurfaceKHR m_surface = nullptr;
+	VkDebugUtilsMessengerEXT m_debugMessenger = 0;
+	VkSurfaceKHR m_surface = 0;
 	VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
 	VkDevice m_device = nullptr;
 	VkQueue m_graphicsQueue = nullptr;
 	VkQueue m_presentQueue = nullptr;
-	VkSwapchainKHR m_swapChain = nullptr;
+	VkSwapchainKHR m_swapChain;
 	std::vector<VkImage> m_swapChainImages;
 	VkFormat m_swapChainImageFormat;
 	VkExtent2D m_swapChainExtent;
 	std::vector<VkImageView> m_swapChainImageViews;
-	VkRenderPass m_renderPass = nullptr;
-	VkDescriptorSetLayout m_descriptorSetLayout = nullptr;
-	VkPipelineLayout m_pipelineLayout = nullptr;
-	VkPipeline m_graphicsPipeline = nullptr;
+	VkRenderPass m_renderPass;
+	VkDescriptorSetLayout m_descriptorSetLayout;
+	VkPipelineLayout m_pipelineLayout;
+	VkPipeline m_graphicsPipeline;
 	std::vector<VkFramebuffer> m_swapChainFramebuffers;
-	VkCommandPool m_commandPool = nullptr;
-	VkImage m_depthImage = nullptr;
-	VkDeviceMemory m_depthImageMemory = nullptr;
-	VkImageView m_depthImageView = nullptr;
-	VkImage m_textureImage = nullptr;
-	VkDeviceMemory textureImageMemory = nullptr;
-	VkImageView m_textureImageView = nullptr;
-	VkSampler m_textureSampler = nullptr;
+	VkCommandPool m_commandPool;
+	VkImage m_depthImage;
+	VkDeviceMemory m_depthImageMemory;
+	VkImageView m_depthImageView;
+	VkImage m_textureImage;
+	VkDeviceMemory textureImageMemory;
+	VkImageView m_textureImageView;
+	VkSampler m_textureSampler;
 	std::vector<Vertex> m_vertices;
 	std::vector<uint32_t> m_indices;
-	VkBuffer m_vertexBuffer = nullptr;
-	VkDeviceMemory m_vertexBufferMemory = nullptr;
-	VkBuffer m_indexBuffer = nullptr;
-	VkDeviceMemory m_indexBufferMemory = nullptr;
+	VkBuffer m_vertexBuffer;
+	VkDeviceMemory m_vertexBufferMemory;
+	VkBuffer m_indexBuffer;
+	VkDeviceMemory m_indexBufferMemory;
 	std::vector<VkBuffer> m_uniformBuffers;
-	VkDescriptorPool m_descriptorPool = nullptr;
+	VkDescriptorPool m_descriptorPool;
 	std::vector<VkDescriptorSet> m_descriptorSets;
 	std::vector<VkDeviceMemory> m_uniformBuffersMemory;
 	std::vector<VkCommandBuffer> m_commandBuffers;
