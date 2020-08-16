@@ -22,6 +22,6 @@ include_directories("D:/DATA/Documents/Visual Studio 2019/Libraries/tinyobjloade
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+# This probably causes the glfw folder to appear in the project window
 add_subdirectory("D:/DATA/Documents/Visual Studio 2019/Libraries/glfw-3.3.2" build)
-#add_subdirectory("D:/DATA/Documents/Visual Studio 2019/Libraries/glfw-3.3.2")
 target_link_libraries(Sandbox glfw)

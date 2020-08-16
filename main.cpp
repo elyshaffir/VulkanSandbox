@@ -18,7 +18,6 @@
 #include <vector>
 #include <optional>
 #include <set>
-#include <cstdint>
 #include <algorithm>
 #include <fstream>
 #include <array>
@@ -169,8 +168,8 @@ private:
 	static constexpr uint32_t WIDTH = 800;
 	static constexpr uint32_t HEIGHT = 600;
 
-	const std::string MODEL_PATH = "viking_room.obj";
-	const std::string TEXTURE_PATH = "viking_room.png";
+	const std::string MODEL_PATH = "../viking_room.obj";
+	const std::string TEXTURE_PATH = "../viking_room.png";
 
 	const std::vector<const char *> validationLayers =
 	{
@@ -1918,6 +1917,5 @@ int main()
 		std::cerr << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
-
 	return EXIT_SUCCESS;
 }
