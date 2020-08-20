@@ -1,0 +1,5 @@
+"C:\Program Files\JetBrains\CLion 2020.2\bin\cmake\win\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - NMake Makefiles" D:\DATA\Documents\Vulkan\VulkanSandbox
+-- Using Win32 for window creation
+-- Configuring done
+-- Generating done
+-- Build files have been written to: D:/DATA/Documents/Vulkan/VulkanSandbox/cmake-build-debug

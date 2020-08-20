@@ -30,7 +30,7 @@ VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
 									  VkDebugUtilsMessengerEXT * pDebugMessenger)
 {
 	auto func = (PFN_vkCreateDebugUtilsMessengerEXT)
-	        vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+			vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
 	if (func != nullptr)
 	{
 		return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
@@ -46,7 +46,7 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance,
 								   const VkAllocationCallbacks * pAllocator)
 {
 	auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)
-	        vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+			vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
 	if (func != nullptr)
 	{
 		func(instance, debugMessenger, pAllocator);
@@ -135,11 +135,13 @@ struct Vertex
 
 namespace std
 {
-	template<> struct hash<Vertex>
+	template<>
+	struct hash<Vertex>
 	{
 		size_t operator()(Vertex const & vertex) const
 		{
-			return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^ (hash<glm::vec2>()(vertex.texCoord) << 1);
+			return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^
+				   (hash<glm::vec2>()(vertex.texCoord) << 1);
 		}
 	};
 }
@@ -168,18 +170,18 @@ private:
 	static constexpr uint32_t WIDTH = 800;
 	static constexpr uint32_t HEIGHT = 600;
 
-	const std::string MODEL_PATH = "../viking_room.obj";
-	const std::string TEXTURE_PATH = "../viking_room.png";
+	const std::string MODEL_PATH = "viking_room.obj";
+	const std::string TEXTURE_PATH = "viking_room.png";
 
 	const std::vector<const char *> validationLayers =
-	{
-		"VK_LAYER_KHRONOS_validation"
-	};
+			{
+					"VK_LAYER_KHRONOS_validation"
+			};
 
 	const std::vector<const char *> deviceExtensions =
-	{
-		VK_KHR_SWAPCHAIN_EXTENSION_NAME
-	};
+			{
+					VK_KHR_SWAPCHAIN_EXTENSION_NAME
+			};
 
 #ifdef NDEBUG
 	static constexpr bool ENABLE_VALIDATION_LAYERS = false;
@@ -411,8 +413,12 @@ private:
 	{
 		createInfo = { };
 		createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-		createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-		createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+		createInfo.messageSeverity =
+				VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+				VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+		createInfo.messageType =
+				VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+				VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 		createInfo.pfnUserCallback = DebugCallback;
 	}
 
@@ -580,7 +586,7 @@ private:
 		SwapChainSupportDetails details;
 
 		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, m_surface, &details.capabilities);
-		
+
 		uint32_t formatCount;
 		vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &formatCount, nullptr);
 		if (formatCount != 0)
@@ -588,13 +594,14 @@ private:
 			details.formats.resize(formatCount);
 			vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &formatCount, details.formats.data());
 		}
-		
+
 		uint32_t presentModeCount;
 		vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_surface, &presentModeCount, nullptr);
 		if (presentModeCount != 0)
 		{
 			details.presentModes.resize(presentModeCount);
-			vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_surface, &presentModeCount, details.presentModes.data());
+			vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_surface, &presentModeCount,
+													  details.presentModes.data());
 		}
 
 		return details;
@@ -604,7 +611,8 @@ private:
 	{
 		for (const VkSurfaceFormatKHR & availableFormat : availableFormats)
 		{
-			if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+			if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB &&
+				availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
 			{
 				return availableFormat;
 			}
@@ -635,13 +643,15 @@ private:
 			int width = 0, height = 0;
 			glfwGetFramebufferSize(m_window, &width, &height);
 			VkExtent2D actualExtent =
-			{
-				static_cast<uint32_t>(width),
-				static_cast<uint32_t>(height)
-			};
+					{
+							static_cast<uint32_t>(width),
+							static_cast<uint32_t>(height)
+					};
 
-			actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
-			actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
+			actualExtent.width = std::max(capabilities.minImageExtent.width,
+										  std::min(capabilities.maxImageExtent.width, actualExtent.width));
+			actualExtent.height = std::max(capabilities.minImageExtent.height,
+										   std::min(capabilities.maxImageExtent.height, actualExtent.height));
 			/*
 			actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
 			actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
@@ -714,7 +724,8 @@ private:
 
 		for (uint32_t i = 0; i < m_swapChainImages.size(); i++)
 		{
-			m_swapChainImageViews[i] = CreateImageView(m_swapChainImages[i], m_swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+			m_swapChainImageViews[i] = CreateImageView(m_swapChainImages[i], m_swapChainImageFormat,
+													   VK_IMAGE_ASPECT_COLOR_BIT);
 		}
 	}
 
@@ -790,10 +801,10 @@ private:
 		fragShaderStageInfo.pName = "main";
 
 		VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
-		
+
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo { };
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		
+
 		VkVertexInputBindingDescription bindingDescription = Vertex::GetBindingDescription();
 		std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions = Vertex::GetAttributeDescriptions();
 		vertexInputInfo.vertexBindingDescriptionCount = 1;
@@ -848,7 +859,9 @@ private:
 		multisampling.alphaToOneEnable = VK_FALSE; // Optional
 
 		VkPipelineColorBlendAttachmentState colorBlendAttachment { };
-		colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+		colorBlendAttachment.colorWriteMask =
+				VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT |
+				VK_COLOR_COMPONENT_A_BIT;
 		colorBlendAttachment.blendEnable = VK_FALSE; // VK_TRUE;
 		/*colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
 		colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
@@ -911,7 +924,8 @@ private:
 		// pipelineInfo.basePipelineIndex = -1; // Optional
 		pipelineInfo.pDepthStencilState = &depthStencil;
 
-		if (vkCreateGraphicsPipelines(m_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_graphicsPipeline) != VK_SUCCESS)
+		if (vkCreateGraphicsPipelines(m_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_graphicsPipeline) !=
+			VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create graphics pipeline!");
 		}
@@ -1007,10 +1021,10 @@ private:
 		for (size_t i = 0; i < m_swapChainImageViews.size(); i++)
 		{
 			std::array<VkImageView, 2> attachments =
-			{
-				m_swapChainImageViews[i],
-				m_depthImageView
-			};
+					{
+							m_swapChainImageViews[i],
+							m_depthImageView
+					};
 
 			VkFramebufferCreateInfo framebufferInfo { };
 			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -1055,7 +1069,8 @@ private:
 					m_depthImage,
 					m_depthImageMemory);
 		m_depthImageView = CreateImageView(m_depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
-		TransitionImageLayout(m_depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL); // not mandatory
+		TransitionImageLayout(m_depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED,
+							  VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL); // not mandatory
 	}
 
 	VkFormat FindDepthFormat()
@@ -1065,7 +1080,8 @@ private:
 								   VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
 	}
 
-	VkFormat FindSupportedFormat(const std::vector<VkFormat> & candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
+	VkFormat
+	FindSupportedFormat(const std::vector<VkFormat> & candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
 	{
 		for (VkFormat format : candidates)
 		{
@@ -1230,7 +1246,8 @@ private:
 			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 			destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 		}
-		else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+		else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL &&
+				 newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
 		{
 			barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
@@ -1238,10 +1255,12 @@ private:
 			sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 			destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 		}
-		else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+		else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED &&
+				 newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
 		{
 			barrier.srcAccessMask = 0;
-			barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+			barrier.dstAccessMask =
+					VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
 			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 			destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
@@ -1252,13 +1271,13 @@ private:
 		}
 
 		vkCmdPipelineBarrier(
-			commandBuffer,
-			sourceStage, destinationStage,
-			0,
-			0, nullptr,
-			0, nullptr,
-			1, &barrier
-		);
+				commandBuffer,
+				sourceStage, destinationStage,
+				0,
+				0, nullptr,
+				0, nullptr,
+				1, &barrier
+							);
 
 		EndSingleTimeCommands(commandBuffer);
 	}
@@ -1314,20 +1333,20 @@ private:
 
 		region.imageOffset = {0, 0, 0};
 		region.imageExtent =
-		{
-			width,
-			height,
-			1
-		};
+				{
+						width,
+						height,
+						1
+				};
 
 		vkCmdCopyBufferToImage(
-			commandBuffer,
-			buffer,
-			image,
-			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-			1,
-			&region
-		);
+				commandBuffer,
+				buffer,
+				image,
+				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+				1,
+				&region
+							  );
 
 		EndSingleTimeCommands(commandBuffer);
 	}
@@ -1384,17 +1403,17 @@ private:
 				Vertex vertex { };
 
 				vertex.pos =
-				{
-					attrib.vertices[3 * index.vertex_index + 0],
-					attrib.vertices[3 * index.vertex_index + 1],
-					attrib.vertices[3 * index.vertex_index + 2]
-				};
+						{
+								attrib.vertices[3 * index.vertex_index + 0],
+								attrib.vertices[3 * index.vertex_index + 1],
+								attrib.vertices[3 * index.vertex_index + 2]
+						};
 
 				vertex.texCoord =
-				{
-					attrib.texcoords[2 * index.texcoord_index + 0],
-					1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
-				};
+						{
+								attrib.texcoords[2 * index.texcoord_index + 0],
+								1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+						};
 
 				vertex.color = {1.0f, 1.0f, 1.0f};
 
@@ -1611,7 +1630,8 @@ private:
 			descriptorWrites[1].descriptorCount = 1;
 			descriptorWrites[1].pImageInfo = &imageInfo;
 
-			vkUpdateDescriptorSets(m_device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+			vkUpdateDescriptorSets(m_device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0,
+								   nullptr);
 		}
 	}
 
@@ -1648,7 +1668,7 @@ private:
 			renderPassInfo.framebuffer = m_swapChainFramebuffers[i];
 			renderPassInfo.renderArea.offset = {0, 0};
 			renderPassInfo.renderArea.extent = m_swapChainExtent;
-			
+
 			std::array<VkClearValue, 2> clearValues { };
 			clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
 			clearValues[1].depthStencil = {1.0f, 0};
@@ -1664,10 +1684,11 @@ private:
 			vkCmdBindVertexBuffers(m_commandBuffers[i], 0, 1, vertexBuffers, offsets);
 			vkCmdBindIndexBuffer(m_commandBuffers[i], m_indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
-			vkCmdBindDescriptorSets(m_commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1, &m_descriptorSets[i], 0, nullptr);
+			vkCmdBindDescriptorSets(m_commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1,
+									&m_descriptorSets[i], 0, nullptr);
 			vkCmdDrawIndexed(m_commandBuffers[i], static_cast<uint32_t>(m_indices.size()), 1, 0, 0, 0);
 			vkCmdEndRenderPass(m_commandBuffers[i]);
-			
+
 			if (vkEndCommandBuffer(m_commandBuffers[i]) != VK_SUCCESS)
 			{
 				throw std::runtime_error("Failed to record command buffer!");
@@ -1717,7 +1738,8 @@ private:
 
 		uint32_t imageIndex = 0;
 		VkResult result =
-			vkAcquireNextImageKHR(m_device, m_swapChain, UINT64_MAX, m_imageAvailableSemaphores[m_currentFrame], VK_NULL_HANDLE, &imageIndex);
+				vkAcquireNextImageKHR(m_device, m_swapChain, UINT64_MAX, m_imageAvailableSemaphores[m_currentFrame],
+									  VK_NULL_HANDLE, &imageIndex);
 
 		if (result == VK_ERROR_OUT_OF_DATE_KHR)
 		{
@@ -1822,7 +1844,8 @@ private:
 			vkDestroyFramebuffer(m_device, framebuffer, nullptr);
 		}
 
-		vkFreeCommandBuffers(m_device, m_commandPool, static_cast<uint32_t>(m_commandBuffers.size()), m_commandBuffers.data());
+		vkFreeCommandBuffers(m_device, m_commandPool, static_cast<uint32_t>(m_commandBuffers.size()),
+							 m_commandBuffers.data());
 
 		vkDestroyPipeline(m_device, m_graphicsPipeline, nullptr);
 		vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);
@@ -1854,7 +1877,8 @@ private:
 		UniformBufferObject ubo { };
 		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		ubo.proj = glm::perspective(glm::radians(45.0f), m_swapChainExtent.width / (float) m_swapChainExtent.height, 0.1f, 10.0f);
+		ubo.proj = glm::perspective(glm::radians(45.0f), m_swapChainExtent.width / (float) m_swapChainExtent.height,
+									0.1f, 10.0f);
 		ubo.proj[1][1] *= -1;
 
 		void * data;
@@ -1887,7 +1911,7 @@ private:
 			vkDestroyFence(m_device, m_inFlightFences[i], nullptr);
 		}
 		vkDestroyCommandPool(m_device, m_commandPool, nullptr);
-		
+
 		vkDestroyDevice(m_device, nullptr);
 
 		if (ENABLE_VALIDATION_LAYERS)
