@@ -1,2 +1,2 @@
-glslc.exe shader.vert -o cmake-build-debug/vert.spv
-glslc.exe shader.frag -o cmake-build-debug/frag.spv
+glslc.exe shader.vert -o vert.spv
+glslc.exe shader.frag -o frag.spv
