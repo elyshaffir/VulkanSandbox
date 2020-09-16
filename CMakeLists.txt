@@ -4,7 +4,7 @@
 # - Need to make sure local variables like ${PROJECT_NAME} are used wherever they can
 cmake_minimum_required(VERSION 3.17)
 project(Sandbox)
-add_executable(Sandbox main.cpp)
+add_executable(Sandbox main.cpp Application/src/Application.cpp Application/include/Application.h Metadata/include/Version.h Application/Vulkan/src/VulkanApplication.cpp Application/Vulkan/include/VulkanApplication.h Application/Vulkan/Components/include/Window.h Application/Vulkan/Components/GLFW/src/GLFWWindow.cpp Application/Vulkan/Components/GLFW/include/GLFWWindow.h Application/Vulkan/Components/Vulkan/src/VulkanGraphics.cpp Application/Vulkan/Components/Vulkan/include/VulkanGraphics.h Application/Vulkan/Components/include/Graphics.h Vulkan/src/Instance.cpp Vulkan/include/Instance.h Metadata/include/Engine.h)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
