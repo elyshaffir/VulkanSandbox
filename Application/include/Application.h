@@ -2,17 +2,16 @@
 #define SANDBOX_APPLICATION_H
 
 #include <string>
-#include "../Metadata/Headers/Version.h"
+#include "../../Metadata/include/Version.h"
 
 namespace sandbox::application
 {
 	class Application
 	{
 	public:
-		Application(std::string name, const metadata::ApplicationVersion & version);
+		Application(std::string name, const Version & version);
 
 		void Run();
-
 	protected:
 		virtual void Initialize() = 0;
 
@@ -23,7 +22,7 @@ namespace sandbox::application
 		virtual void CleanUp() = 0;
 	private:
 		const std::string name;
-		const metadata::ApplicationVersion version;
+		const Version version;
 	};
 }
 

@@ -1883,16 +1883,6 @@ private:
 
 int main()
 {
-	std::cout << "GO OVER THE TUTORIAL ONE MORE TIME AND WRITE ALL POSSIBLE OPTIMIZATIONS" << std::endl;
-	std::cout << "https://developer.nvidia.com/vulkan-memory-management" << std::endl;
-	std::cout
-			<< "https://developer.nvidia.com/gpugems/gpugems/part-ii-lighting-and-shadows/chapter-11-shadow-map-antialiasing"
-			<< std::endl;
-	std::cout << "https://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/" << std::endl;
-	std::cout << "https://www.khronos.org/opengl/wiki/Primitive" << std::endl;
-	std::cout << "https://www.khronos.org/opengl/wiki/Tessellation" << std::endl;
-	std::cout << "Should the entire engine, including objects and models be based on marching cubes?" << std::endl;
-	std::cout << "vulkan application class" << std::endl;
 	HelloTriangleApplication app;
 
 	try

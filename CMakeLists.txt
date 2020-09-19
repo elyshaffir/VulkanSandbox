@@ -4,7 +4,7 @@
 # - Need to make sure local variables like ${PROJECT_NAME} are used wherever they can
 cmake_minimum_required(VERSION 3.17)
 project(Sandbox)
-add_executable(Sandbox main.cpp Application/src/Application.cpp Application/include/Application.h Metadata/include/Version.h Application/Vulkan/src/VulkanApplication.cpp Application/Vulkan/include/VulkanApplication.h Application/Vulkan/Components/include/Window.h Application/Vulkan/Components/GLFW/src/GLFWWindow.cpp Application/Vulkan/Components/GLFW/include/GLFWWindow.h Application/Vulkan/Components/Vulkan/src/VulkanGraphics.cpp Application/Vulkan/Components/Vulkan/include/VulkanGraphics.h Application/Vulkan/Components/include/Graphics.h Vulkan/src/Instance.cpp Vulkan/include/Instance.h Metadata/include/Engine.h)
+add_executable(Sandbox main.cpp Application/src/Application.cpp Application/include/Application.h Metadata/include/Version.h Vulkan/src/VulkanApplication.cpp Vulkan/include/VulkanApplication.h Application/Components/include/Window.h GLFW/src/GLFWWindow.cpp GLFW/include/GLFWWindow.h Vulkan/src/VulkanGraphics.cpp Vulkan/include/VulkanGraphics.h Application/Components/include/Graphics.h Vulkan/src/Instance.cpp Vulkan/include/Instance.h Metadata/include/Engine.h Exceptions/include/Exception.h Exceptions/include/ExceptionSeverity.h Vulkan/include/VulkanException.h Vulkan/src/VulkanException.cpp Vulkan/src/InstanceCreationException.cpp Vulkan/include/InstanceCreationException.h Exceptions/src/Exception.cpp Exceptions/src/ExceptionSeverity.cpp Vulkan/src/ValidationLayersUnavailableException.cpp Vulkan/include/ValidationLayersUnavailableException.h IO/include/OutputChannel.h IO/ConsoleOutputChannel.cpp IO/ConsoleOutputChannel.h)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
@@ -23,5 +23,5 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 # This probably causes the glfw folder to appear in the project window
-add_subdirectory("D:/DATA/Documents/Visual Studio 2019/Libraries/glfw-3.3.2" build)
+# add_subdirectory("D:/DATA/Documents/Visual Studio 2019/Libraries/glfw-3.3.2" build)
 target_link_libraries(Sandbox glfw)

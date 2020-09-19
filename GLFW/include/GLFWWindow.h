@@ -2,10 +2,10 @@
 #define SANDBOX_GLFWWINDOW_H
 
 #include <string>
-#include "../../Headers/Window.h"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#include "../../include/Window.h"
 
 namespace sandbox::application::components
 {
@@ -21,7 +21,6 @@ namespace sandbox::application::components
 		virtual void Update() override;
 
 		virtual void CleanUp() override;
-
 	private:
 		const std::string title;
 		const int32_t width;

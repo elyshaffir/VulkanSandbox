@@ -1,10 +1,9 @@
-#include "Headers/Application.h"
-
 #include <utility>
+#include "../include/Application.h"
 
 using namespace sandbox::application;
 
-Application::Application(std::string name, const metadata::ApplicationVersion & version)
+Application::Application(std::string name, const Version & version)
 		: name(std::move(name)), version(version)
 {
 }

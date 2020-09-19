@@ -1,9 +1,9 @@
 #ifndef SANDBOX_VULKANAPPLICATION_H
 #define SANDBOX_VULKANAPPLICATION_H
 
-#include "../../Headers/Application.h"
-#include "../Components/GLFW/Headers/GLFWWindow.h"
-#include "../Components/Vulkan/Headers/VulkanGraphics.h"
+#include "../../Application/include/Application.h"
+#include "../../Application/Components/include/Window.h"
+#include "VulkanGraphics.h"
 
 namespace sandbox::application
 {
@@ -18,7 +18,7 @@ namespace sandbox::application
 
 		virtual void CleanUp() override;
 	private:
-		components::GLFWWindow window;
+		components::Window & window;
 		components::VulkanGraphics graphics;
 	};
 }

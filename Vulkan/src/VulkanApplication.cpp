@@ -1,4 +1,4 @@
-#include "Headers/VulkanApplication.h"
+#include "../include/VulkanApplication.h"
 
 void sandbox::application::VulkanApplication::Initialize()
 {

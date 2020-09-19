@@ -1,6 +1,5 @@
-#include "Headers/GLFWWindow.h"
-
 #include <utility>
+#include "../include/GLFWWindow.h"
 
 using namespace sandbox::application::components;
 

@@ -1,4 +1,4 @@
-#include "Headers/VulkanGraphics.h"
+#include "../include/VulkanGraphics.h"
 
 void sandbox::application::components::VulkanGraphics::Initialize()
 {
