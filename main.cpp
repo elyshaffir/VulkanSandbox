@@ -32,8 +32,8 @@
 #include <set>
 #include <unordered_map>
 
-const std::string MODEL_PATH = "viking_room.obj";
-const std::string TEXTURE_PATH = "viking_room.png";
+const std::string MODEL_PATH = "Resources/viking_room.obj";
+const std::string TEXTURE_PATH = "Resources/viking_room.png";
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -50,21 +50,6 @@ const bool enableValidationLayers = false;
 #else
 const bool enableValidationLayers = true;
 #endif
-
-VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT * pCreateInfo,
-									  const VkAllocationCallbacks * pAllocator,
-									  VkDebugUtilsMessengerEXT * pDebugMessenger)
-{
-	auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
-	if (func != nullptr)
-	{
-		return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
-	}
-	else
-	{
-		return VK_ERROR_EXTENSION_NOT_PRESENT;
-	}
-}
 
 void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
 								   const VkAllocationCallbacks * pAllocator)
@@ -389,18 +374,7 @@ private:
 
 	void setupDebugMessenger()
 	{
-		if (!enableValidationLayers)
-		{
-			return;
-		}
 
-		VkDebugUtilsMessengerCreateInfoEXT createInfo;
-		populateDebugMessengerCreateInfo(createInfo);
-
-		if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS)
-		{
-			throw std::runtime_error("failed to set up debug messenger!");
-		}
 	}
 
 	void createSurface()

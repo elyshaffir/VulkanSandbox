@@ -2,5 +2,5 @@
 
 std::string sandbox::vulkan::ValidationLayersUnavailableException::DescribeSpecific()
 {
-	return "Validation layers requested, but not available!";
+	return "Validation layers requested, but not available.";
 }

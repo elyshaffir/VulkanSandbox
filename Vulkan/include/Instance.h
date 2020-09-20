@@ -24,6 +24,10 @@ namespace sandbox::vulkan
 	private:
 		std::vector<const char *> validationLayers;
 		VkInstance instance;
+		VkDebugUtilsMessengerEXT debugMessenger;
+
+		static void CreateApplicationInfo(const std::string & applicationName, Version applicationVersion,
+										  VkApplicationInfo * appInfo);
 
 		static bool CheckValidationLayerSupport(const std::vector<const char *> & validationLayers);
 
@@ -36,6 +40,9 @@ namespace sandbox::vulkan
 
 		static void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT & createInfo,
 													 io::OutputChannel & outputChannel);
+
+		void CreateDebugUtilsMessengerEXT(const VkDebugUtilsMessengerCreateInfoEXT * pCreateInfo,
+										  const VkAllocationCallbacks * pAllocator);
 	};
 }
 

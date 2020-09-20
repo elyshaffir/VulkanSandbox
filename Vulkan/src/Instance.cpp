@@ -4,6 +4,8 @@
 #include "../include/Instance.h"
 #include "../../Metadata/include/Engine.h"
 #include "../include/ValidationLayersUnavailableException.h"
+#include "../ExtensionUnavailableException.h"
+#include "../DebugMessengerCreationException.h"
 
 using namespace sandbox::vulkan;
 
@@ -24,14 +26,7 @@ void Instance::Initialize(const std::string & applicationName, Version applicati
 						  io::OutputChannel outputChannel)
 {
 	VkApplicationInfo appInfo { };
-	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	appInfo.pApplicationName = applicationName.c_str();
-	appInfo.applicationVersion = VK_MAKE_VERSION(applicationVersion.major, applicationVersion.minor,
-												 applicationVersion.patch);
-	appInfo.pEngineName = Engine::ENGINE_NAME.c_str();
-	appInfo.engineVersion = VK_MAKE_VERSION(Engine::ENGINE_VERSION.major, Engine::ENGINE_VERSION.minor,
-											Engine::ENGINE_VERSION.patch);
-	appInfo.apiVersion = VK_API_VERSION_1_0;
+	CreateApplicationInfo(applicationName, applicationVersion, &appInfo);
 
 	VkInstanceCreateInfo createInfo { };
 	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -43,17 +38,35 @@ void Instance::Initialize(const std::string & applicationName, Version applicati
 
 	if (!validationLayers.empty())
 	{
-		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo { };
 		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
 		createInfo.ppEnabledLayerNames = validationLayers.data();
+
+		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo { };
 		PopulateDebugMessengerCreateInfo(debugCreateInfo, outputChannel);
 		createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *) &debugCreateInfo;
+
+		VkDebugUtilsMessengerCreateInfoEXT createInfo1;
+		PopulateDebugMessengerCreateInfo(createInfo1, outputChannel);
+		CreateDebugUtilsMessengerEXT(&createInfo1, nullptr);
 	}
 
 	if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
 	{
 		throw InstanceCreationException();
 	}
+}
+
+void Instance::CreateApplicationInfo(const std::string & applicationName, Version applicationVersion,
+									 VkApplicationInfo * appInfo)
+{
+	appInfo->sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+	appInfo->pApplicationName = applicationName.c_str();
+	appInfo->applicationVersion = VK_MAKE_VERSION(applicationVersion.major, applicationVersion.minor,
+												  applicationVersion.patch);
+	appInfo->pEngineName = Engine::ENGINE_NAME.c_str();
+	appInfo->engineVersion = VK_MAKE_VERSION(Engine::ENGINE_VERSION.major, Engine::ENGINE_VERSION.minor,
+											 Engine::ENGINE_VERSION.patch);
+	appInfo->apiVersion = VK_API_VERSION_1_0;
 }
 
 bool Instance::CheckValidationLayerSupport(const std::vector<const char *> & validationLayers)
@@ -119,4 +132,22 @@ void Instance::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoE
 			VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 	createInfo.pfnUserCallback = DebugCallback;
 	createInfo.pUserData = &outputChannel;
+}
+
+void Instance::CreateDebugUtilsMessengerEXT(const VkDebugUtilsMessengerCreateInfoEXT * pCreateInfo,
+											const VkAllocationCallbacks * pAllocator)
+{
+	auto vkCreateDebugUtilsMessengerEXT = (PFN_vkCreateDebugUtilsMessengerEXT)
+			vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+	if (vkCreateDebugUtilsMessengerEXT != nullptr)
+	{
+		if (vkCreateDebugUtilsMessengerEXT(instance, pCreateInfo, pAllocator, &debugMessenger) != VK_SUCCESS)
+		{
+			throw DebugMessengerCreationException();
+		}
+	}
+	else
+	{
+		throw ExtensionUnavailableException("DebugUtilsMessenger");
+	}
 }

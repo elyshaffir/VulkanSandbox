@@ -1,7 +1,7 @@
 #ifndef SANDBOX_VULKANGRAPHICS_H
 #define SANDBOX_VULKANGRAPHICS_H
 
-#include "../../include/Graphics.h"
+#include "../../Application/Components/include/Graphics.h"
 
 namespace sandbox::application::components
 {

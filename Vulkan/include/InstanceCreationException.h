@@ -11,9 +11,9 @@ namespace sandbox::vulkan
 		InstanceCreationException();
 
 	protected:
-		virtual std::string DescribeReason() override;
+		std::string DescribeReason() override;
 
-		virtual std::string DescribeSpecific() override;
+		std::string DescribeSpecific() override;
 	};
 }
 

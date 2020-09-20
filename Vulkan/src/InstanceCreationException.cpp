@@ -13,5 +13,5 @@ std::string InstanceCreationException::DescribeReason()
 
 std::string InstanceCreationException::DescribeSpecific()
 {
-	return "Failed to create instance!"
+	return "Failed to create instance.";
 }
