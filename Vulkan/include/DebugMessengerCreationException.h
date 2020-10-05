@@ -1,7 +1,7 @@
 #ifndef SANDBOX_DEBUGMESSENGERCREATIONEXCEPTION_H
 #define SANDBOX_DEBUGMESSENGERCREATIONEXCEPTION_H
 
-#include "include/InstanceCreationException.h"
+#include "InstanceCreationException.h"
 
 namespace sandbox::vulkan
 {

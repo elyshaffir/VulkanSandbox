@@ -1,18 +1,24 @@
 #ifndef SANDBOX_VULKANGRAPHICS_H
 #define SANDBOX_VULKANGRAPHICS_H
 
-#include "../../Application/Components/include/Graphics.h"
+#include <vector>
+#include "Instance.h"
+#include "../Surface.h"
 
-namespace sandbox::application::components
+namespace sandbox::vulkan
 {
-	class VulkanGraphics : Graphics
+	class VulkanGraphics
 	{
 	public:
-		virtual void Initialize() override;
+		void Initialize(glfw::GLFWWindow window);
 
-		virtual void Draw() override;
+		void Draw();
 
-		virtual void CleanUp() override;
+		void CleanUp();
+
+	private:
+		Instance instance;
+		Surface surface;
 	};
 }
 

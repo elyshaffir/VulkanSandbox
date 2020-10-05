@@ -7,9 +7,6 @@ namespace sandbox::vulkan
 {
 	class VulkanException : public exceptions::Exception
 	{
-	public:
-		VulkanException(exceptions::ExceptionSeverity severity);
-
 	protected:
 		virtual std::string DescribeDomain() override;
 	};

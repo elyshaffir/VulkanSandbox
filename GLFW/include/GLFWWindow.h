@@ -5,22 +5,24 @@
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
-#include "../../include/Window.h"
 
-namespace sandbox::application::components
+namespace sandbox::glfw
 {
-	class GLFWWindow : public Window
+	class GLFWWindow
 	{
 	public:
 		GLFWWindow(std::string title, int32_t width, int32_t height);
 
-		virtual void Initialize() override;
+		virtual void Initialize();
 
-		virtual bool ShouldClose() override;
+		virtual bool ShouldClose();
 
-		virtual void Update() override;
+		virtual void Update();
 
-		virtual void CleanUp() override;
+		virtual void CleanUp();
+
+		void CreateVulkanSurface(VkInstance instance, VkSurfaceKHR * surface);
+
 	private:
 		const std::string title;
 		const int32_t width;

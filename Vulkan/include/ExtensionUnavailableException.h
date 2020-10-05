@@ -1,7 +1,7 @@
 #ifndef SANDBOX_EXTENSIONUNAVAILABLEEXCEPTION_H
 #define SANDBOX_EXTENSIONUNAVAILABLEEXCEPTION_H
 
-#include "include/InstanceCreationException.h"
+#include "InstanceCreationException.h"
 
 namespace sandbox::vulkan
 {

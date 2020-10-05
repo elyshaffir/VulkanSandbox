@@ -1,16 +1,21 @@
 #include "../include/VulkanGraphics.h"
 
-void sandbox::application::components::VulkanGraphics::Initialize()
+#include <utility>
+
+using namespace sandbox::vulkan;
+
+void VulkanGraphics::Initialize(glfw::GLFWWindow window)
+{
+	instance = Instance();
+	surface.Initialize(std::move(window), instance);
+}
+
+void VulkanGraphics::Draw()
 {
 
 }
 
-void sandbox::application::components::VulkanGraphics::Draw()
-{
-
-}
-
-void sandbox::application::components::VulkanGraphics::CleanUp()
+void VulkanGraphics::CleanUp()
 {
 
 }

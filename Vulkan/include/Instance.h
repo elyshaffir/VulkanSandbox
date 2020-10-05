@@ -3,7 +3,7 @@
 
 #include <vulkan/vulkan.h>
 #include <string>
-#include "../../Metadata/include/Version.h"
+#include "../../Data/include/Version.h"
 #include "../../IO/include/OutputChannel.h"
 
 namespace sandbox::vulkan
@@ -21,15 +21,21 @@ namespace sandbox::vulkan
 
 		void CleanUp();
 
+		VkInstance GetInstance();
+
 	private:
+		static inline const std::vector<const char *> DEFAULT_VALIDATION_LAYERS = {
+				"VK_LAYER_KHRONOS_validation"
+		};
+
 		std::vector<const char *> validationLayers;
 		VkInstance instance;
 		VkDebugUtilsMessengerEXT debugMessenger;
 
+		static bool CheckValidationLayerSupport(const std::vector<const char *> & validationLayers);
+
 		static void CreateApplicationInfo(const std::string & applicationName, Version applicationVersion,
 										  VkApplicationInfo * appInfo);
-
-		static bool CheckValidationLayerSupport(const std::vector<const char *> & validationLayers);
 
 		static std::vector<const char *> GetRequiredExtensions(bool enableValidationLayers);
 

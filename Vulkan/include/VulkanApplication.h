@@ -2,12 +2,11 @@
 #define SANDBOX_VULKANAPPLICATION_H
 
 #include "../../Application/include/Application.h"
-#include "../../Application/Components/include/Window.h"
 #include "VulkanGraphics.h"
 
-namespace sandbox::application
+namespace sandbox::vulkan
 {
-	class VulkanApplication : public Application
+	class VulkanApplication : public application::Application
 	{
 	protected:
 		virtual void Initialize() override;
@@ -18,8 +17,8 @@ namespace sandbox::application
 
 		virtual void CleanUp() override;
 	private:
-		components::Window & window;
-		components::VulkanGraphics graphics;
+		glfw::GLFWWindow window;
+		VulkanGraphics graphics;
 	};
 }
 

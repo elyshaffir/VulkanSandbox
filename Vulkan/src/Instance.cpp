@@ -2,14 +2,14 @@
 #include <vector>
 #include <GLFW/glfw3.h>
 #include "../include/Instance.h"
-#include "../../Metadata/include/Engine.h"
+#include "../../Data/include/Engine.h"
 #include "../include/ValidationLayersUnavailableException.h"
-#include "../ExtensionUnavailableException.h"
-#include "../DebugMessengerCreationException.h"
+#include "../include/ExtensionUnavailableException.h"
+#include "../include/DebugMessengerCreationException.h"
 
 using namespace sandbox::vulkan;
 
-Instance::Instance() : Instance(std::vector<const char *>())
+Instance::Instance() : Instance(DEFAULT_VALIDATION_LAYERS)
 {
 }
 
@@ -56,18 +56,11 @@ void Instance::Initialize(const std::string & applicationName, Version applicati
 	}
 }
 
-void Instance::CreateApplicationInfo(const std::string & applicationName, Version applicationVersion,
-									 VkApplicationInfo * appInfo)
+VkInstance Instance::GetInstance()
 {
-	appInfo->sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	appInfo->pApplicationName = applicationName.c_str();
-	appInfo->applicationVersion = VK_MAKE_VERSION(applicationVersion.major, applicationVersion.minor,
-												  applicationVersion.patch);
-	appInfo->pEngineName = Engine::ENGINE_NAME.c_str();
-	appInfo->engineVersion = VK_MAKE_VERSION(Engine::ENGINE_VERSION.major, Engine::ENGINE_VERSION.minor,
-											 Engine::ENGINE_VERSION.patch);
-	appInfo->apiVersion = VK_API_VERSION_1_0;
+	return instance;
 }
+
 
 bool Instance::CheckValidationLayerSupport(const std::vector<const char *> & validationLayers)
 {
@@ -94,6 +87,19 @@ bool Instance::CheckValidationLayerSupport(const std::vector<const char *> & val
 		}
 	}
 	return true;
+}
+
+void Instance::CreateApplicationInfo(const std::string & applicationName, Version applicationVersion,
+									 VkApplicationInfo * appInfo)
+{
+	appInfo->sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+	appInfo->pApplicationName = applicationName.c_str();
+	appInfo->applicationVersion = VK_MAKE_VERSION(applicationVersion.major, applicationVersion.minor,
+												  applicationVersion.patch);
+	appInfo->pEngineName = Engine::ENGINE_NAME.c_str();
+	appInfo->engineVersion = VK_MAKE_VERSION(Engine::ENGINE_VERSION.major, Engine::ENGINE_VERSION.minor,
+											 Engine::ENGINE_VERSION.patch);
+	appInfo->apiVersion = VK_API_VERSION_1_0;
 }
 
 std::vector<const char *> Instance::GetRequiredExtensions(bool enableValidationLayers)

@@ -1,23 +1,25 @@
 #include "../include/VulkanApplication.h"
 
-void sandbox::application::VulkanApplication::Initialize()
+using namespace sandbox::vulkan;
+
+void VulkanApplication::Initialize()
 {
 	window.Initialize();
-	graphics.Initialize();
+	graphics.Initialize(window);
 }
 
-bool sandbox::application::VulkanApplication::Continue()
+bool VulkanApplication::Continue()
 {
 	return !window.ShouldClose();
 }
 
-void sandbox::application::VulkanApplication::Loop()
+void VulkanApplication::Loop()
 {
 	window.Update();
 	graphics.Draw();
 }
 
-void sandbox::application::VulkanApplication::CleanUp()
+void VulkanApplication::CleanUp()
 {
 	graphics.CleanUp();
 	window.CleanUp();

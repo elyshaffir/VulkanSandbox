@@ -7,9 +7,6 @@ namespace sandbox::vulkan
 {
 	class InstanceCreationException : public VulkanException
 	{
-	public:
-		InstanceCreationException();
-
 	protected:
 		std::string DescribeReason() override;
 

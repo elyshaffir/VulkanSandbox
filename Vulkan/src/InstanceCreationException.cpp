@@ -2,10 +2,6 @@
 
 using namespace sandbox::vulkan;
 
-InstanceCreationException::InstanceCreationException() : VulkanException(exceptions::ExceptionSeverity::Fatal)
-{
-}
-
 std::string InstanceCreationException::DescribeReason()
 {
 	return "instance creation process";
