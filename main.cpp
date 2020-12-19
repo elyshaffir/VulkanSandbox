@@ -358,20 +358,8 @@ private:
 
 	void pickPhysicalDevice()
 	{
-		for (const auto & device : devices)
-		{
-			if (isDeviceSuitable(device))
-			{
-				physicalDevice = device;
-				msaaSamples = getMaxUsableSampleCount();
-				break;
-			}
-		}
-
-		if (physicalDevice == VK_NULL_HANDLE)
-		{
-			throw std::runtime_error("failed to find a suitable GPU!");
-		}
+		// physicalDevice = device;
+		// msaaSamples = getMaxUsableSampleCount();
 	}
 
 	void createLogicalDevice()
@@ -381,7 +369,7 @@ private:
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 		std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
 
-		float queuePriority = 1.0f;
+		float queueQueueFamilyIndicesPriority = 1.0f;
 		for (uint32_t queueFamily : uniqueQueueFamilies)
 		{
 			VkDeviceQueueCreateInfo queueCreateInfo { };

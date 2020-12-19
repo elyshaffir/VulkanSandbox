@@ -2,7 +2,6 @@
 #define SANDBOX_DEVICE_H
 
 #include <vulkan/vulkan.h>
-#include <map>
 #include "DeviceSupport.h"
 
 namespace sandbox::vulkan
@@ -10,18 +9,17 @@ namespace sandbox::vulkan
 	class Device
 	{
 	public:
-		static std::vector<Device> GatherDevices(Surface surface, const std::vector<DeviceSupport> & neededSupports,
-												 const std::vector<VkPhysicalDevice> & physicalDevices);
+		static Device PickDevice(const DeviceSupport& support, Surface surface,
+						   std::vector<VkPhysicalDevice> & physicalDevices);
 
 	private:
 		VkPhysicalDevice physicalDevice;
+		QueueFamilyIndices queueFamilyIndices;
 		VkDevice logicalDevice;
 
-		explicit Device(VkPhysicalDevice physicalDevice);
+		Device(VkPhysicalDevice physicalDevice, QueueFamilyIndices queueFamilyIndices);
 
-		static uint32_t FindDevice(Surface surface, const DeviceSupport & support, bool unused,
-								   const std::map<uint32_t, uint32_t> & supported,
-								   const std::vector<VkPhysicalDevice> & physicalDevices);
+		void CreateLogicalDevice();
 	};
 }
 

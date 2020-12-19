@@ -12,44 +12,20 @@ PhysicalInterface::PhysicalInterface() : devices()
 }
 
 void PhysicalInterface::Initialize(Instance instance, Surface surface,
-								   const std::vector<DeviceSupport> & neededExtensions)
+								   const std::vector<DeviceSupport> & neededSupports)
 {
 	uint32_t deviceCount = 0;
 	vkEnumeratePhysicalDevices(instance.GetInstance(), &deviceCount, nullptr);
-	if (deviceCount < neededExtensions.size())
+	if (deviceCount < neededSupports.size())
 	{
-		throw NotEnoughPhysicalDevicesException(neededExtensions.size(), deviceCount);
+		throw NotEnoughPhysicalDevicesException(neededSupports.size(), deviceCount);
 	}
 
 	std::vector<VkPhysicalDevice> physicalDevices(deviceCount);
 	vkEnumeratePhysicalDevices(instance.GetInstance(), &deviceCount, physicalDevices.data());
-	// Later, differentiate between devices via index, support can overlap
-	devices = Device::GatherDevices(surface, neededExtensions, physicalDevices);
-	//	for (const auto physicalDevice : physicalDevices)
-	//	{
-	//		if (IsPhysicalDeviceSuitable(surface, physicalDevice))
-	//		{
-	//
-	//		}
-	//	}
-}
 
-bool PhysicalInterface::IsPhysicalDeviceSuitable(Surface surface,
-												 VkPhysicalDevice physicalDevice) // Deprecated, should be moved to devicesupport
-{
-	QueueFamilyIndices indices = surface.GetQueueFamilyIndices(physicalDevice);
-
-	bool extensionsSupported = CheckDeviceExtensionSupport(physicalDevice);
-
-	bool swapChainAdequate = false;
-	if (extensionsSupported)
+	for (const DeviceSupport & support : neededSupports)
 	{
-		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice);
-		swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+		devices.push_back(Device::PickDevice(support, surface, physicalDevices))
 	}
-
-	VkPhysicalDeviceFeatures supportedFeatures;
-	vkGetPhysicalDeviceFeatures(physicalDevice, &supportedFeatures);
-
-	return indices.IsComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
 }

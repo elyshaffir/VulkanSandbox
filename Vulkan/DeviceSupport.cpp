@@ -5,14 +5,17 @@
 
 using namespace sandbox::vulkan;
 
-DeviceSupport::DeviceSupport(std::vector<const char *> extensions, bool swapChainSupport) :
-		extensions(std::move(extensions)), swapChainSupport(swapChainSupport)
+DeviceSupport::DeviceSupport(std::vector<const char *> extensions, QueueFamilyRequirements queueFamilyIndices,
+							 ArbitraryDeviceSupport swapChainSupport) :
+		extensions(std::move(extensions)), queueFamilyIndices(queueFamilyIndices), swapChainSupport(swapChainSupport)
 {
 }
 
-bool DeviceSupport::CheckSupport(Surface surface, VkPhysicalDevice physicalDevice) const
+bool DeviceSupport::CheckSupport(VkPhysicalDevice physicalDevice, Surface surface,
+								 QueueFamilyIndices queueFamilyIndices) const
 {
-	return CheckExtensionSupport(physicalDevice) && CheckSwapChainSupport(surface, physicalDevice);
+	return CheckExtensionSupport(physicalDevice) && queueFamilyIndices.IsComplete(queueFamilyRequirements) &&
+		   arbitraryDeviceSupport.CheckSupport(surface, physicalDevice);
 }
 
 bool DeviceSupport::CheckExtensionSupport(VkPhysicalDevice physicalDevice) const
@@ -31,14 +34,4 @@ bool DeviceSupport::CheckExtensionSupport(VkPhysicalDevice physicalDevice) const
 	}
 
 	return requiredExtensions.empty();
-}
-
-bool DeviceSupport::CheckSwapChainSupport(Surface surface, VkPhysicalDevice physicalDevice) const
-{
-	if (!swapChainSupport)
-	{
-		return true;
-	}
-	SwapChainSupportDetails swapChainSupportDetails = surface.QuerySwapChainSupport(physicalDevice);
-	return !swapChainSupportDetails.formats.empty() && !swapChainSupportDetails.presentModes.empty();
 }

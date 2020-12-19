@@ -1,57 +1,32 @@
-#include <set>
-#include <map>
 #include "Device.h"
-#include "NoPhysicalDeviceCombinationException.h"
-#include "NoSupportingUnusedDeviceException.h"
+#include "NoSupportingDeviceException.h"
 
 using namespace sandbox::vulkan;
 
-std::vector<Device> Device::GatherDevices(Surface surface, const std::vector<DeviceSupport> & neededSupports,
-										  const std::vector<VkPhysicalDevice> & physicalDevices)
+Device Device::PickDevice(const DeviceSupport & support, Surface surface,
+						  std::vector<VkPhysicalDevice> & physicalDevices)
 {
-	std::map<uint32_t, uint32_t> supported;
-	for (uint32_t supportIndex = 0; supportIndex < neededSupports.size(); ++supportIndex)
+	auto physicalDeviceIterator = physicalDevices.begin();
+	while (physicalDeviceIterator != physicalDevices.end())
 	{
-		try
+		QueueFamilyIndices queueFamilyIndices = surface.GetQueueFamilyIndices(*physicalDeviceIterator);
+		if (support.CheckSupport(*physicalDeviceIterator, surface, queueFamilyIndices))
 		{
-			supported.insert({
-									 FindDevice(surface, neededSupports[supportIndex], true, supported,
-												physicalDevices),
-									 supportIndex
-							 });
+			physicalDevices.erase(physicalDeviceIterator);
+			return Device(*physicalDeviceIterator, queueFamilyIndices)
 		}
-		catch (NoSupportingUnusedDeviceException &)
-		{
-			uint32_t usedDeviceIndex = FindDevice(surface, neededSupports[supportIndex], false, supported,
-												  physicalDevices);
-			uint32_t supportedIndex = supported.find(usedDeviceIndex)->second;
-
-		}
+		++physicalDeviceIterator;
 	}
+	throw NoSupportingDeviceException();
 }
 
-Device::Device(VkPhysicalDevice physicalDevice) : physicalDevice(physicalDevice), logicalDevice(nullptr)
+Device::Device(VkPhysicalDevice physicalDevice, QueueFamilyIndices queueFamilyIndices) :
+		physicalDevice(physicalDevice), queueFamilyIndices(queueFamilyIndices), logicalDevice(nullptr)
 {
+	CreateLogicalDevice();
 }
 
-uint32_t Device::FindDevice(Surface surface, const DeviceSupport & support, bool unused,
-							const std::map<uint32_t, uint32_t> & supported,
-							const std::vector<VkPhysicalDevice> & physicalDevices)
+void Device::CreateLogicalDevice()
 {
-	for (uint32_t deviceIndex = 0; deviceIndex < physicalDevices.size(); ++deviceIndex)
-	{
-		if ((!unused || supported.find(deviceIndex) == supported.end()) &&
-			support.CheckSupport(surface, physicalDevices[deviceIndex]))
-		{
-			return deviceIndex;
-		}
-	}
-	if (unused)
-	{
-		throw NoSupportingUnusedDeviceException();
-	}
-	else
-	{
-		throw NoSupportingDeviceException();
-	}
+
 }

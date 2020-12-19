@@ -2,6 +2,7 @@
 #define SANDBOX_QUEUEFAMILYINDICES_H
 
 #include <optional>
+#include "QueueFamilyRequirements.h"
 
 namespace sandbox::vulkan
 {
@@ -11,9 +12,10 @@ namespace sandbox::vulkan
 		std::optional<uint32_t> graphicsFamily;
 		std::optional<uint32_t> presentFamily;
 
-		bool IsComplete()
+		bool IsComplete(QueueFamilyRequirements requirements)
 		{
-			return graphicsFamily.has_value() && presentFamily.has_value();
+			return (!requirements.graphicsFamily || graphicsFamily.has_value()) &&
+				   (!requirements.presentFamily || presentFamily.has_value());
 		}
 	};
 }

@@ -14,7 +14,7 @@ namespace sandbox::vulkan
 	public:
 		PhysicalInterface();
 
-		void Initialize(Instance instance, Surface surface, const std::vector<DeviceSupport> & neededExtensions);
+		void Initialize(Instance instance, Surface surface, const std::vector<DeviceSupport> & neededSupports);
 
 	private:
 		std::vector<Device> devices;
